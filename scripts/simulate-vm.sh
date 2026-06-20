@@ -170,8 +170,8 @@ Usage:
 Options:
   --scenario NAME      Scenario name from scripts/attack-scenarios/ (e.g. apt29/apt29_discovery)
   --list-scenarios     Print available scenarios and exit
-  --warmup-sec N       Seconds to wait after starting esgraphd (default: 3)
-  --cooldown-sec N     Seconds to wait after the last attack command (default: 3)
+  --warmup-sec N       Seconds to wait before starting esgraphd, ESF off (default: 3)
+  --cooldown-sec N     Seconds to wait after stopping esgraphd, ESF off (default: 3)
   --command-delay-sec N  Seconds to wait between scenario commands (default: 1)
   --rust-log FILTER    RUST_LOG value for esgraphd on VM (default: esgraph=info)
   --config PATH        Config path on VM (default: /opt/esgraph/config/default.toml)
@@ -543,7 +543,10 @@ signal_pid() {
 
 pid_alive() {
   local pid="$1"
-  [[ -n "${pid}" ]] && ps -p "${pid}" -o pid= >/dev/null 2>&1
+  [[ -z "${pid}" ]] && return 1
+  # esgraphd runs as root under sudo; unprivileged kill -0 fails even when the process exists.
+  kill -0 "${pid}" 2>/dev/null \
+    || sudo -n /bin/kill -0 "${pid}" 2>/dev/null
 }
 
 find_esgraphd_pids() {
@@ -654,6 +657,9 @@ else
   echo "warning: could not read store.path from ${CONFIG_PATH}" >&2
 fi
 
+echo "==> warmup ${WARMUP_SEC}s (ESF off)"
+sleep "${WARMUP_SEC}"
+
 echo "==> starting ESF collection (esgraphd on VM)"
 sudo -n env RUST_LOG="${RUST_LOG_LEVEL}" "${BINARY}" run --config "${CONFIG_PATH}" >"${RUN_LOG}" 2>&1 &
 ESGRAPH_PID=$!
@@ -689,8 +695,6 @@ fi
 echo "    sudo pid: ${ESGRAPH_PID}"
 echo "    esgraphd pid: ${ESGRAPHD_PID:-unknown}"
 echo "    log: ${RUN_LOG}"
-echo "==> warmup ${WARMUP_SEC}s"
-sleep "${WARMUP_SEC}"
 
 echo "==> running simulation commands"
 ATTACK_EXIT=0
@@ -726,13 +730,13 @@ else
   done <<< "${ATTACK_PAYLOAD}"
 fi
 
-echo "==> cooldown ${COOLDOWN_SEC}s"
-sleep "${COOLDOWN_SEC}"
-
 echo "==> stopping ESF collection (esgraphd)"
 stop_esgraphd "${ESGRAPH_PID}"
 ESGRAPH_PID=""
 ESGRAPHD_PID=""
+
+echo "==> cooldown ${COOLDOWN_SEC}s (ESF off)"
+sleep "${COOLDOWN_SEC}"
 
 echo "==> post-collection management (ESF off)"
 echo "    collecting status"
@@ -807,6 +811,21 @@ cleanup_verify=${CLEANUP_VERIFY:-}
 cleanup_remaining=${CLEANUP_REMAINING:-}
 EOF2
 
+LATEST_DIR="${OUTPUT_DIR}/latest"
+if [[ -f "${HOST_RUN_DIR}/events.lbug" ]]; then
+  echo "==> updating latest database: ${LATEST_DIR}"
+  mkdir -p "${LATEST_DIR}"
+  rm -f "${LATEST_DIR}/events.lbug" "${LATEST_DIR}/events.lbug.wal"
+  cp -f "${HOST_RUN_DIR}/events.lbug" "${LATEST_DIR}/events.lbug"
+  if [[ -f "${HOST_RUN_DIR}/events.lbug.wal" ]]; then
+    cp -f "${HOST_RUN_DIR}/events.lbug.wal" "${LATEST_DIR}/events.lbug.wal"
+  fi
+  cp -f "${HOST_RUN_DIR}/run-meta.txt" "${LATEST_DIR}/run-meta.txt"
+  printf '%s\n' "${HOST_RUN_DIR}" > "${LATEST_DIR}/source-run.txt"
+else
+  echo "warning: no events.lbug in run artefacts; latest database unchanged" >&2
+fi
+
 run_scenario_cleanup
 
 echo "==> removing copied artefacts from VM"
@@ -824,6 +843,9 @@ echo "  - events.lbug.tar.gz"
 echo "  - events.lbug (+ events.lbug.wal if present)"
 echo "  - run-meta.txt"
 echo "  - attack-command.txt"
+echo "latest database (Ladybug Explorer): ${OUTPUT_DIR}/latest"
+echo "  - events.lbug (+ events.lbug.wal if present)"
+echo "  - run-meta.txt (source run in source-run.txt)"
 if [[ -n "${SCENARIO_NAME}" ]]; then
   if [[ "${CLEANUP_VERIFY}" == "ok" ]]; then
     echo "scenario cleanup: successful"

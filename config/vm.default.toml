@@ -33,4 +33,8 @@ flush_interval_ms = 1000
 paths = [
     "/System",
     "/private/var/db",
+    # esgraph install + simulation scratch (store.path parent is also auto-muted at subscribe)
+    "/opt/esgraph",
+    "/private/tmp/esgraph-sim-",
+    "/tmp/esgraph-sim-",
 ]

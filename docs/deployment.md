@@ -103,8 +103,8 @@ Scenarios live in [`scripts/attack-scenarios/`](../scripts/attack-scenarios/). S
 |--------|---------|---------|
 | `--scenario NAME` | none | Run a named scenario from `scripts/attack-scenarios/` using `<actor>/<name>` |
 | `--list-scenarios` | n/a | Print available scenarios and exit |
-| `--warmup-sec N` | `3` | Wait before attack command (collector startup window) |
-| `--cooldown-sec N` | `3` | Wait after attack command before stopping collector |
+| `--warmup-sec N` | `3` | Wait before starting esgraphd (ESF off; lets the VM settle) |
+| `--cooldown-sec N` | `3` | Wait after stopping esgraphd (ESF off; before status/archive) |
 | `--rust-log FILTER` | `esgraph=info` | `RUST_LOG` value for collector run |
 | `--config PATH` | `/opt/esgraph/config/default.toml` | Config path on VM |
 | `--output-dir PATH` | `./artefacts/simulations` | Host folder for copied artefacts |
@@ -129,6 +129,8 @@ Each run creates a host folder like `artefacts/simulations/<timestamp>-<scenario
 - `status.txt`
 - `run-meta.txt`
 - `attack-command.txt`
+
+After each successful copy, the same `events.lbug` (and `.wal` if present) is also written to `artefacts/simulations/latest/` so Ladybug Explorer can use a fixed mount path. `latest/source-run.txt` points at the timestamped run folder.
 
 After successful copy, the script runs the scenario cleanup script (removes `/tmp` staging from the attack), then removes the corresponding log/status/database files from the VM.
 

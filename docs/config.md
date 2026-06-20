@@ -60,10 +60,17 @@ Under `sudo`, use absolute paths — `~` expands to `/var/root`.
 
 ```toml
 [mute]
-paths = ["/System", "/private/var/db"]
+paths = [
+    "/System",
+    "/private/var/db",
+    "/opt/esgraph",              # VM: suppress esgraphd self-ingest
+    "/tmp/esgraph-sim-",         # VM: simulation scratch from simulate-vm.sh
+]
 ```
 
-Prefix paths passed to `es_mute_path` before ESF subscribe. Reduces noise from system activity.
+Prefix paths passed to `es_mute_path` before ESF subscribe. Reduces noise from system activity and from esgraph itself.
+
+The collector also auto-mutes the parent directory of `[store].path` (resolved to an absolute path when possible), so the LadybugDB write path is silenced even if it is not listed here.
 
 ## Validation
 

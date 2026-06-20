@@ -33,7 +33,7 @@ Configuration is loaded from TOML via `Config::from_file` or `Config::from_str`.
 
 When running under `sudo`, avoid `~` in `store.path` — it expands to `/var/root`. Use an absolute path such as `/opt/esgraph/data/events.lbug`.
 
-**`[mute]`** — Path prefixes passed to ESF `es_mute_path` before subscribe (see [ESF collector](esf.md)).
+**`[mute]`** — Path prefixes passed to ESF `es_mute_path` before subscribe; the store directory is auto-muted as well (see [ESF collector](esf.md)).
 
 ## Event names (`EsEventName`)
 

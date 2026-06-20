@@ -37,7 +37,7 @@ Steps:
 2. **`resolved_event_names`** — loads configured `EsEventName` list from TOML.
 3. **`event_names_to_es_types`** — maps to `es_event_type_t` constants.
 4. **`Client::new`** — registers the message handler; failures produce `EsfError::Client` with operator hints (see below).
-5. **`apply_path_mutes`** — for each `[mute].paths` entry, calls `es_mute_path` with `ES_MUTE_PATH_TYPE_PREFIX`.
+5. **`apply_path_mutes`** — for each `[mute].paths` entry plus the parent of `[store].path`, calls `es_mute_path` with `ES_MUTE_PATH_TYPE_PREFIX`.
 6. **`subscribe`** — registers for all configured event types.
 7. **Shutdown loop** — polls `shutdown` every 200 ms until `AtomicBool` is set (Ctrl+C in `esgraphd`).
 
@@ -107,7 +107,9 @@ From `Message::process()` / event targets via `process_node()`:
 
 ## Path muting
 
-Configured prefixes (default: `/System`, `/private/var/db`) reduce volume from system paths before events reach the handler. Uses `Client::mute_path` with prefix type.
+Configured `[mute].paths` prefixes (default: `/System`, `/private/var/db`; VM adds `/opt/esgraph` and simulation scratch under `/tmp/esgraph-sim-`) reduce volume before events reach the handler. Uses `Client::mute_path` with prefix type.
+
+The store directory (`[store].path` parent, resolved to an absolute path when possible) is always muted at subscribe time so esgraphd does not ingest its own LadybugDB writes.
 
 ## Client creation errors
 

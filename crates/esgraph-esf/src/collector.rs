@@ -1,6 +1,7 @@
 //! Live ESF client loop — subscribe, mute paths, forward normalised events.
 
 use std::ffi::OsStr;
+use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::SyncSender;
 use std::sync::Arc;
@@ -83,13 +84,51 @@ fn handle_message(client: &mut Client<'_>, msg: &Message, tx: &SyncSender<Normal
 }
 
 fn apply_path_mutes(client: &mut Client<'_>, config: &Config) -> Result<(), EsfError> {
-    for path in &config.mute.paths {
+    let mut muted: Vec<String> = config.mute.paths.clone();
+
+    if let Some(store_prefix) = store_mute_prefix(&config.store.path) {
+        if !muted.iter().any(|p| p == &store_prefix) {
+            muted.push(store_prefix);
+        }
+    }
+
+    for path in &muted {
         client
             .mute_path(OsStr::new(path), es_mute_path_type_t::ES_MUTE_PATH_TYPE_PREFIX)
             .map_err(|e| EsfError::Client(format!("mute_path {path}: {e}")))?;
         info!(path, "muted path prefix via es_mute_path");
     }
     Ok(())
+}
+
+/// Resolve the store directory to an absolute prefix suitable for `es_mute_path`.
+fn store_mute_prefix(store_path: &str) -> Option<String> {
+    let path = Path::new(store_path.trim());
+    let parent = path.parent().filter(|p| !p.as_os_str().is_empty())?;
+
+    let absolute = if parent.is_absolute() {
+        parent.to_path_buf()
+    } else if let Ok(cwd) = std::env::current_dir() {
+        cwd.join(parent)
+    } else {
+        parent.to_path_buf()
+    };
+
+    canonicalize_prefix(absolute).and_then(|p| p.to_str().map(str::to_owned))
+}
+
+fn canonicalize_prefix(path: PathBuf) -> Option<PathBuf> {
+    if path.exists() {
+        path.canonicalize().ok().or(Some(path))
+    } else {
+        path.parent()
+            .and_then(|p| p.canonicalize().ok())
+            .and_then(|p| {
+                path.file_name()
+                    .map(|name| p.join(name))
+            })
+            .or(Some(path))
+    }
 }
 
 fn init_runtime_version() {

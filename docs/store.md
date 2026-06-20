@@ -99,18 +99,18 @@ Cypher `MATCH … RETURN count(…)` helpers used by `esgraphd status`.
 
 [Ladybug Explorer](https://github.com/LadybugDB/explorer) is the browser UI for LadybugDB — open `.lbug` files directly, no Bolt server required.
 
-1. Build or replay a graph: `data/events.lbug` or `artefacts/simulations/<run>/events.lbug`
+1. Build or replay a graph: `data/events.lbug`, `artefacts/simulations/latest/events.lbug` (updated after each VM simulation), or a specific run under `artefacts/simulations/<run>/events.lbug`
 2. Launch Explorer (Docker) against that directory:
 
 ```bash
 docker run -p 8000:8000 \
-  -v "$(pwd)/data:/database" \
+  -v "$(pwd)/artefacts/simulations/latest:/database" \
   -e LBUG_FILE=events.lbug \
   -e MODE=READ_ONLY \
   --rm ghcr.io/ladybugdb/explorer:latest
 ```
 
-For a simulation run, mount the run directory instead (e.g. `artefacts/simulations/<run-id>-<scenario>/`) and keep `LBUG_FILE=events.lbug`.
+For local replay data, mount `data/` instead. For a specific simulation run, mount that run directory (e.g. `artefacts/simulations/<run-id>-<scenario>/`) and keep `LBUG_FILE=events.lbug`.
 
 3. Open [http://localhost:8000](http://localhost:8000) and run Cypher hunt queries in the shell
 
