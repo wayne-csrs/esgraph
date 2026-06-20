@@ -2,7 +2,7 @@
 
 A **research project** exploring how macOS [Endpoint Security Framework (ESF)](https://developer.apple.com/documentation/endpointsecurity) telemetry can be subscribed to, normalised, and ingested into a **graph-shaped database** for security analysis.
 
-The goal is to turn live system activity — process execution, file access, UNIX socket binds — into queryable **nodes** and **edges** so you can hunt behaviour chains (discovery → staging → exfiltration, and similar) without standing up a full SIEM stack.
+The goal is to turn system activity into queryable **nodes** and **edges** so you can explore behaviour chains (discovery → staging → exfiltration, and similar).
 
 ```
 ESF events  →  normalise  →  LadybugDB (nodes + edges)  →  Cypher hunts
@@ -17,7 +17,7 @@ This is experimental tooling for isolated lab environments, not a production end
 3. **Ingest** batches into embedded **LadybugDB** (`Process`, `File`, `Socket` nodes; typed relationships).
 4. **Query** with `esgraphd query` — Cypher hunt patterns, including multi-hop paths.
 
-On the host you can develop and replay JSON fixtures without ESF. On a dedicated VM you can run the live collector (`esgraphd run`) with the Endpoint Security entitlement, root, and Full Disk Access.
+You can run the live collector (`esgraphd run`) on a dedicated VM with the Endpoint Security entitlement, root, and Full Disk Access.
 
 ## Recommended setup
 
@@ -41,35 +41,32 @@ Use a **two-machine workflow**: your everyday Mac as the **host**, and a **dedic
 
 Full checklist (SIP, entitlement, FDA, install layout): **[docs/vm-setup.md](docs/vm-setup.md)**.
 
-## Quick start (host — no ESF)
-
-Build and replay fixtures into a local LadybugDB file. No VM or entitlements required.
-
-```bash
-cargo build -p esgraphd
-
-./target/debug/esgraphd replay --config config/default.toml fixtures/*.json
-./target/debug/esgraphd status --config config/default.toml
-./target/debug/esgraphd query --config config/default.toml \
-  "MATCH (p:Process)-[r:WROTE]->(f:File) RETURN p.path, f.path LIMIT 20"
-```
-
-Graph path defaults to `data/events.lbug` in [`config/default.toml`](config/default.toml).
-
 ## Live collection on the VM
 
-### 1. Configure SSH
+### 1. Create a dedicated macOS VM
+
+Use a **throwaway guest** for live ESF collection — not your daily Mac. **[UTM](https://mac.getutm.app/)** is recommended on Apple Silicon or Intel hosts: create a macOS virtual machine with the same CPU architecture as your host (`arm64` or `x86_64`), macOS **11+** (12+ preferred), and enough disk/RAM for ESF telemetry (8 GB RAM and 40 GB disk is a reasonable starting point).
+
+On the **VM**, after installation:
+
+1. Confirm baseline: `sw_vers`, `uname -m`, and `csrutil status`
+2. **Disable SIP** (required for typical ad-hoc ESF signing workflows): reboot into Recovery (Apple Silicon: hold power → Options; Intel: ⌘R at boot), open Terminal, run `csrutil disable`, reboot, then verify `csrutil status` shows **disabled**
+3. Enable **Remote Login** (System Settings → General → Sharing → Remote Login) for the user you will deploy as
+
+Only disable SIP on this dedicated research VM. Full checklist: [docs/vm-setup.md](docs/vm-setup.md).
+
+### 2. Configure SSH
 
 ```bash
 cp config/vm.env.example config/vm.env
 # Edit ESGRAPH_VM_HOST, ESGRAPH_VM_USER, ESGRAPH_INSTALL_PATH
 ```
 
-### 2. Prepare the VM
+### 3. Prepare the VM
 
-Work through [docs/vm-setup.md](docs/vm-setup.md): SSH, deploy/sign, Full Disk Access, passwordless sudo (for automation).
+Work through [docs/vm-setup.md](docs/vm-setup.md): SSH keys, deploy/sign, Full Disk Access, passwordless sudo (for automation).
 
-### 3. Deploy from the host
+### 4. Deploy from the host
 
 ```bash
 ./scripts/deploy-vm.sh
@@ -77,7 +74,7 @@ Work through [docs/vm-setup.md](docs/vm-setup.md): SSH, deploy/sign, Full Disk A
 
 Installs a codesigned `esgraphd` to `/opt/esgraph/` on the VM.
 
-### 4. Run the collector
+### 5. Run the collector
 
 On the VM (or via simulation script below):
 
@@ -89,7 +86,7 @@ Stop with **Ctrl+C** — the writer flushes pending events before exit.
 
 `esgraphd status` only **reads** the graph; it is not the live collector. To check whether `run` is active: `ps -ax | grep '[/]opt/esgraph/esgraphd run'`.
 
-### 5. Debug
+### 6. Debug
 
 ```bash
 ./scripts/debug-vm.sh          # lldb on the VM over SSH
