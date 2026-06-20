@@ -1,0 +1,36 @@
+# Rust
+/target/
+**/*.rs.bk
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Local config and secrets
+config/vm.env
+.env
+.env.*
+
+# Local databases and graph stores
+/data/
+*.lbug
+*.lbug.wal
+
+# Simulation and analysis outputs
+/artefacts/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

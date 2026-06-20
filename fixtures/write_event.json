@@ -1,0 +1,55 @@
+{
+  "event_name": "notify_write",
+  "timestamp_unix_ns": 1700000000000000000,
+  "details": {
+    "instigator_pid": 4242,
+    "instigator_euid": 501,
+    "instigator_egid": 20,
+    "instigator_path": "/bin/zsh",
+    "file_mode": 33188,
+    "file_inode": 12345,
+    "file_owner_uid": 501,
+    "file_owner_gid": 20,
+    "path_truncated": false
+  },
+  "nodes": [
+    {
+      "kind": "process",
+      "identity": {
+        "audit_token_hex": "aabbccdd0011",
+        "pid": 4242
+      },
+      "path": "/bin/zsh",
+      "signing_id": null,
+      "team_id": null,
+      "cdhash": null,
+      "ppid": 1,
+      "euid": 501,
+      "egid": 20,
+      "ruid": 501,
+      "rgid": 20,
+      "session_id": 100,
+      "is_platform_binary": true
+    },
+    {
+      "kind": "file",
+      "path": "/tmp/research.txt",
+      "inode": 12345,
+      "mode": 33188,
+      "owner_uid": 501,
+      "owner_gid": 20,
+      "path_truncated": false
+    }
+  ],
+  "edges": [
+    {
+      "kind": "WROTE",
+      "src_id": "aabbccdd0011",
+      "src_kind": "process",
+      "dst_id": "/tmp/research.txt",
+      "dst_kind": "file",
+      "timestamp_unix_ns": 1700000000000000000
+    }
+  ],
+  "raw_json": "{\"fixture\":\"write_event\"}"
+}

@@ -1,0 +1,36 @@
+# esgraph configuration for the VM (/opt/esgraph install).
+#
+# Deployed by scripts/deploy-vm.sh alongside the host default.toml.
+# When running `sudo esgraphd`, avoid `~` in paths — it expands to /var/root.
+
+[events]
+process = [
+    "notify_exec",
+    "notify_fork",
+    "notify_exit",
+    "notify_get_task",
+    "notify_remote_thread_create",
+]
+
+file = [
+    "notify_create",
+    "notify_write",
+    "notify_unlink",
+    "notify_rename",
+]
+
+network = [
+    "notify_uipc_bind",
+    "notify_uipc_connect",
+]
+
+[store]
+path = "/opt/esgraph/data/events.lbug"
+batch_size = 500
+flush_interval_ms = 1000
+
+[mute]
+paths = [
+    "/System",
+    "/private/var/db",
+]

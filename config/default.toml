@@ -1,0 +1,44 @@
+# esgraph default configuration
+#
+# Event names are snake_case ESF NOTIFY types unless noted.
+# See crates/esgraph-core/src/events.rs for the full registry.
+#
+# notify_open is intentionally omitted — it generates extreme
+# volume on desktop systems and can overwhelm the ingest pipeline.
+
+[events]
+# Process lifecycle telemetry (parent → child graph edges)
+process = [
+    "notify_exec",
+    "notify_fork",
+    "notify_exit",
+]
+
+# File operations (Process → File edges)
+file = [
+    "notify_create",
+    "notify_write",
+    "notify_unlink",
+    "notify_rename",
+]
+
+# Phase 1 "network" = UNIX domain sockets only (not TCP/UDP)
+network = [
+    "notify_uipc_bind",
+    "notify_uipc_connect",
+]
+
+[store]
+# Override for local replay — avoids needing /opt/esgraph on the dev host.
+path = "data/events.lbug"
+# Batch up to N events before flushing to LadybugDB
+batch_size = 500
+# Flush at least every N ms even if batch is not full
+flush_interval_ms = 1000
+
+[mute]
+# Prefixes passed to es_mute_path() to reduce system noise
+paths = [
+    "/System",
+    "/private/var/db",
+]

@@ -1,0 +1,36 @@
+# esgraph workspace root.
+#
+# macOS Endpoint Security Framework (ESF) events → LadybugDB graph.
+#
+# Crates:
+#   esgraph-core  — shared config, event model, errors
+#   esgraph-store — LadybugDB ingest
+#   esgraph-esf   — live ESF client, macOS only
+#   esgraphd      — CLI daemon (replay, query, status, run)
+
+[workspace]
+resolver = "2"
+members = [
+    "crates/esgraph-core",
+    "crates/esgraph-store",
+    "crates/esgraph-esf",
+    "crates/esgraphd",
+]
+default-members = ["crates/esgraph-core", "crates/esgraph-store", "crates/esgraphd"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["wayne@csrs.ltd"]
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+thiserror = "2"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+clap = { version = "4", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+ctrlc = "3"

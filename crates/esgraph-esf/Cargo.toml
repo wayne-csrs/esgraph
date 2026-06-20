@@ -1,0 +1,17 @@
+[package]
+name = "esgraph-esf"
+description = "Live macOS Endpoint Security Framework collector for esgraph"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+esgraph-core = { path = "../esgraph-core" }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+# macos_11_0_0: notify_remote_thread_create, auth_get_task, parent_audit_token, …
+endpoint-sec = { version = "0.6", features = ["macos_11_0_0"] }

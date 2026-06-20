@@ -1,0 +1,22 @@
+[package]
+name = "esgraphd"
+description = "CLI daemon for esgraph — replay, query, status, live ESF run"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "esgraphd"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = { workspace = true }
+clap = { workspace = true }
+esgraph-core = { path = "../esgraph-core" }
+esgraph-store = { path = "../esgraph-store" }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+ctrlc = { workspace = true }
+esgraph-esf = { path = "../esgraph-esf" }

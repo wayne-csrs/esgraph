@@ -1,0 +1,74 @@
+[
+  {
+    "event_name": "notify_exec",
+    "timestamp_unix_ns": 1700000000000000001,
+    "details": {
+      "instigator_pid": 100,
+      "instigator_path": "/bin/bash",
+      "instigator_audit_token_hex": "parent0001",
+      "target_audit_token_hex": "child0002",
+      "target_path": "/usr/bin/python3",
+      "exec_args": ["/usr/bin/python3", "-c", "import os; os.system('id')"]
+    },
+    "nodes": [
+      {
+        "kind": "process",
+        "identity": { "audit_token_hex": "parent0001", "pid": 100 },
+        "path": "/bin/bash",
+        "signing_id": null,
+        "team_id": null,
+        "cdhash": null,
+        "ppid": 1
+      },
+      {
+        "kind": "process",
+        "identity": { "audit_token_hex": "child0002", "pid": 101 },
+        "path": "/usr/bin/python3",
+        "signing_id": "com.apple.python3",
+        "team_id": null,
+        "cdhash": null,
+        "ppid": 100,
+        "args_json": "[\"/usr/bin/python3\",\"-c\",\"import os; os.system('id')\"]"
+      }
+    ],
+    "edges": [
+      {
+        "kind": "EXECUTED",
+        "src_id": "parent0001",
+        "src_kind": "process",
+        "dst_id": "child0002",
+        "dst_kind": "process",
+        "timestamp_unix_ns": 1700000000000000001
+      }
+    ]
+  },
+  {
+    "event_name": "notify_write",
+    "timestamp_unix_ns": 1700000000000000002,
+    "nodes": [
+      {
+        "kind": "process",
+        "identity": { "audit_token_hex": "child0002", "pid": 101 },
+        "path": "/usr/bin/python3",
+        "signing_id": "com.apple.python3",
+        "team_id": null,
+        "cdhash": null,
+        "ppid": 100
+      },
+      {
+        "kind": "file",
+        "path": "/tmp/exfil.dat"
+      }
+    ],
+    "edges": [
+      {
+        "kind": "WROTE",
+        "src_id": "child0002",
+        "src_kind": "process",
+        "dst_id": "/tmp/exfil.dat",
+        "dst_kind": "file",
+        "timestamp_unix_ns": 1700000000000000002
+      }
+    ]
+  }
+]
