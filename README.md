@@ -23,13 +23,6 @@ You can run the live collector (`esgraphd run`) on a dedicated VM with the Endpo
 
 Use a **two-machine workflow**: your everyday Mac as the **host**, and a **dedicated macOS VM** as the instrumented guest.
 
-| | Host Mac | Dedicated VM |
-|---|----------|--------------|
-| Edit code, `cargo build`, unit tests | Yes | Optional |
-| `esgraphd replay` / fixture ingest | Yes | Yes |
-| Live `esgraphd run` (ESF subscription) | No | **Yes** |
-| Ad-hoc codesign, SIP/AMFI trade-offs, FDA, `sudo` | Avoid | **Yes** |
-
 **Why a VM?** Live ESF collection requires root, Full Disk Access, and a signed binary with `com.apple.developer.endpoint-security.client`. Research setups often also disable SIP on the guest. That combination is a poor fit for a daily-use machine but is reasonable on an isolated VM.
 
 **Requirements:**
