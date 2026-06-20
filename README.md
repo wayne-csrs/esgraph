@@ -2,6 +2,9 @@
 
 A **research project** exploring how macOS [Endpoint Security Framework (ESF)](https://developer.apple.com/documentation/endpointsecurity) telemetry can be subscribed to, normalised, and ingested into a **graph-shaped database** for security analysis.
 
+<img width="2418" height="1308" alt="image" src="https://github.com/user-attachments/assets/428891f3-0285-42de-a572-ee6cb2282290" />
+
+
 The goal is to turn system activity into queryable **nodes** and **edges** so you can explore behaviour chains (discovery → staging → exfiltration, and similar).
 
 ```
