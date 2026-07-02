@@ -4,7 +4,6 @@ A **research project** exploring how macOS [Endpoint Security Framework (ESF)](h
 
 <img width="2418" height="1308" alt="image" src="https://github.com/user-attachments/assets/428891f3-0285-42de-a572-ee6cb2282290" />
 
-
 The goal is to turn system activity into queryable **nodes** and **edges** so you can explore behaviour chains (discovery → staging → exfiltration, and similar).
 
 ```
@@ -91,11 +90,11 @@ Stop with **Ctrl+C** — the writer flushes pending events before exit.
 
 ## Attack simulations
 
-Non-destructive threat-actor scenarios under [`scripts/attack-scenarios/`](scripts/attack-scenarios/) drive lab behaviour on the VM while the collector runs. Each scenario has an execution script and a cleanup script.
+Non-destructive threat-actor scenarios under [scripts/attack-scenarios/](scripts/attack-scenarios/) drive lab behaviour on the VM while the collector runs. Each scenario has an execution script and a cleanup script.
 
 ```bash
 ./scripts/simulate-vm.sh --list-scenarios
-./scripts/simulate-vm.sh --scenario apt29/apt29_discovery
+./scripts/simulate-vm.sh --scenario amos/amos_stealer_chain
 ```
 
 This orchestrates: start collector → run scenario → stop collector → copy LadybugDB database and logs to `artefacts/simulations/` on the host → cleanup VM staging. Details: [docs/deployment.md](docs/deployment.md).
@@ -117,16 +116,16 @@ esgraph/
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System overview and crate index |
-| [docs/core.md](docs/core.md) | Config, events, graph model |
-| [docs/store.md](docs/store.md) | LadybugDB schema, ingest, Ladybug Explorer |
-| [docs/esf.md](docs/esf.md) | ESF collector and normalisation |
-| [docs/cli.md](docs/cli.md) | `esgraphd` commands |
-| [docs/config.md](docs/config.md) | TOML configuration |
-| [docs/vm-setup.md](docs/vm-setup.md) | VM rationale, checklist, SSH, sudo |
-| [docs/deployment.md](docs/deployment.md) | Deploy, debug, and simulation scripts |
+| Document                                             | Description                                            |
+| ---------------------------------------------------- | ------------------------------------------------------ |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)         | System overview and crate index                        |
+| [docs/core.md](docs/core.md)                         | Config, events, graph model                            |
+| [docs/store.md](docs/store.md)                       | LadybugDB schema, ingest, Ladybug Explorer             |
+| [docs/esf.md](docs/esf.md)                           | ESF collector and normalisation                        |
+| [docs/cli.md](docs/cli.md)                           | `esgraphd` commands                                    |
+| [docs/config.md](docs/config.md)                     | TOML configuration                                     |
+| [docs/vm-setup.md](docs/vm-setup.md)                 | VM rationale, checklist, SSH, sudo                     |
+| [docs/deployment.md](docs/deployment.md)             | Deploy, debug, and simulation scripts                  |
 | [docs/design-tradeoffs.md](docs/design-tradeoffs.md) | Design trade-offs, production limitations, future work |
 
 ## Tests
