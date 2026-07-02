@@ -127,6 +127,7 @@ esgraph/
 | [docs/config.md](docs/config.md) | TOML configuration |
 | [docs/vm-setup.md](docs/vm-setup.md) | VM rationale, checklist, SSH, sudo |
 | [docs/deployment.md](docs/deployment.md) | Deploy, debug, and simulation scripts |
+| [docs/design-tradeoffs.md](docs/design-tradeoffs.md) | Design trade-offs, production limitations, future work |
 
 ## Tests
 

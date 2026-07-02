@@ -72,3 +72,4 @@ Details: [deployment](deployment.md), [VM setup](vm-setup.md).
 | [config.md](config.md) | TOML files and validation |
 | [vm-setup.md](vm-setup.md) | Entitlement, root, FDA |
 | [deployment.md](deployment.md) | deploy-vm.sh, debug-vm.sh |
+| [design-tradeoffs.md](design-tradeoffs.md) | Trade-offs, production limitations, future work |
